@@ -363,11 +363,24 @@ function initSearch() {
         return;
       }
       t = setTimeout(() => {
-        const results = getAllProducts().filter(p =>
-          p.name.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query) ||
-          p.shortDesc.toLowerCase().includes(query)
-        ).slice(0, 10);
+        const results = getAllProducts()
+          .filter(p =>
+            p.name.toLowerCase().includes(query)
+          )
+          .sort((a, b) => {
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+
+            // ✅ Pehle woh products jin ki heading query se start hoti hai
+            const aStarts = aName.startsWith(query);
+            const bStarts = bName.startsWith(query);
+
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+
+            return 0;
+          })
+          .slice(0, 10);
 
         if (searchResults) {
           if (results.length) {
@@ -732,10 +745,17 @@ function initProductsPage() {
         if (!q) {
           filteredProducts = [...ALL_PRODUCTS];
         } else {
-          filteredProducts = ALL_PRODUCTS.filter(p =>
-            (p.name || "").toLowerCase().includes(q) ||
-            (p.shortDesc || "").toLowerCase().includes(q)
-          );
+          filteredProducts = ALL_PRODUCTS
+            .filter(p =>
+              (p.name || "").toLowerCase().includes(q)
+            )
+            .sort((a, b) => {
+              const aStarts = a.name.toLowerCase().startsWith(q);
+              const bStarts = b.name.toLowerCase().startsWith(q);
+              if (aStarts && !bStarts) return -1;
+              if (!aStarts && bStarts) return 1;
+              return 0;
+            });
           currentPage = 1;
         }
 
